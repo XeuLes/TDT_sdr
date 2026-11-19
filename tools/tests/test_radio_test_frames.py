@@ -17,7 +17,9 @@ from radio_test_frames import (  # noqa: E402
 
 # Compare the new bitwise CRC implementation against the existing table-based
 # implementation. Importing bin.py does not run its file-generating main().
-reference_spec = importlib.util.spec_from_file_location("existing_bin", ROOT / "bin.py")
+PROJECT_ROOT = next(parent for parent in Path(__file__).resolve().parents
+                    if (parent / "bin.py").is_file())
+reference_spec = importlib.util.spec_from_file_location("existing_bin", PROJECT_ROOT / "bin.py")
 reference = importlib.util.module_from_spec(reference_spec)
 reference_spec.loader.exec_module(reference)
 

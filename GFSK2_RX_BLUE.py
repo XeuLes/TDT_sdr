@@ -105,14 +105,14 @@ class GFSK2_RX_BLUE(gr.top_block, Qt.QWidget):
                 50000,
                 window.WIN_BLACKMAN,
                 6.76))
-        self.iio_fmcomms2_source_0 = iio.fmcomms2_source_fc32('ip:192.168.2.1', [False, False, True, True], 65536)
+        self.iio_fmcomms2_source_0 = iio.fmcomms2_source_fc32('ip:192.168.1.11', [True, True, False, False], 65536)
         self.iio_fmcomms2_source_0.set_len_tag_key('packet_len')
         self.iio_fmcomms2_source_0.set_frequency(434520000)
         self.iio_fmcomms2_source_0.set_samplerate((samp_rate*2))
-        if False:
+        if True:
             self.iio_fmcomms2_source_0.set_gain_mode(0, 'slow_attack')
             self.iio_fmcomms2_source_0.set_gain(0, 64)
-        if True:
+        if False:
             self.iio_fmcomms2_source_0.set_gain_mode(1, 'slow_attack')
             self.iio_fmcomms2_source_0.set_gain(1, 64)
         self.iio_fmcomms2_source_0.set_quadrature(True)

@@ -614,11 +614,11 @@ blocks:
     quadrature: 'True'
     rf_port_select: '''A_BALANCED'''
     rfdc: 'True'
-    rx1_en: 'False'
-    rx2_en: 'True'
+    rx1_en: 'True'
+    rx2_en: 'False'
     samplerate: samp_rate*2
     type: fc32
-    uri: ip:192.168.2.1
+    uri: ip:192.168.1.11
   states:
     bus_sink: false
     bus_source: false
