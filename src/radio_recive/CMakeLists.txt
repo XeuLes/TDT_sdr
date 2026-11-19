@@ -10,7 +10,8 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(std_msgs REQUIRED)
-find_package(cppzmq REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(ZMQ REQUIRED IMPORTED_TARGET libzmq)
 find_package(radio_interface REQUIRED)
 
 # include directories
@@ -25,7 +26,7 @@ target_include_directories(radio_recive_component PUBLIC
 target_link_libraries(
   radio_recive_component
   PUBLIC
-    cppzmq
+    PkgConfig::ZMQ
     rclcpp::rclcpp
     rclcpp_components::component
     ${std_msgs_TARGETS}

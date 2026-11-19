@@ -5,3 +5,5 @@ __pycache__/
 .agents/
 .codex/
 AGENTS.md
+elf.blocks_file_sink_0.set_unbuffered(False)
+.vscode/

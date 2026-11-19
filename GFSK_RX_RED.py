@@ -123,7 +123,7 @@ class GFSK_RX_RED(gr.top_block, Qt.QWidget):
         self.freq_xlating_fir_filter_xxx_0_0_0_2 = filter.freq_xlating_fir_filter_ccc(2, firdes.low_pass(1.0,samp_rate*2,270000,40000), 600000, (samp_rate*2))
         self.freq_xlating_fir_filter_xxx_0_0_0_1 = filter.freq_xlating_fir_filter_ccc(2, firdes.low_pass(1.0,samp_rate*2,420000,40000), (-100000), (samp_rate*2))
         self.freq_xlating_fir_filter_xxx_0_0_0 = filter.freq_xlating_fir_filter_ccc(2, firdes.low_pass(1.0,samp_rate*2,480000,40000), (-400000), (samp_rate*2))
-        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/tdt/radio_data/8.4.bin', False)
+        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/dev/null', False)
         self.blocks_file_sink_0.set_unbuffered(False)
         self.analog_quadrature_demod_cf_0_0_1 = analog.quadrature_demod_cf(1.5)
         self.analog_quadrature_demod_cf_0_0 = analog.quadrature_demod_cf(1.5)
