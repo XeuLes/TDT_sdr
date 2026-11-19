@@ -7,7 +7,7 @@ import sys
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "tools"))
+sys.path.insert(0, str(ROOT))
 
 from radio_test_frames import (  # noqa: E402
     ACCESS_INFO, ACCESS_KEY, HP, POSITIONS, PREAMBLE, TEST_KEY, StreamSettings,

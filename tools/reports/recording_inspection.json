@@ -1,0 +1,442 @@
+{
+  "checked_date": "2026-11-19",
+  "python_version": "3.12.10",
+  "validation": "Full cf32_le sample scan and sampled spectrum only; no GNU Radio decode or hardware TX performed",
+  "source": "User-reported official RoboMaster venue recordings",
+  "sample_rate_hz": null,
+  "center_frequency_hz": null,
+  "recordings": [
+    {
+      "file": "D:\\stm32Project\\信息波录制\\RX_RED",
+      "format": "cf32_le",
+      "format_status": "raw_IQ_interpretation",
+      "bytes": 145489920,
+      "complex_samples": 18186240,
+      "start_sample": 0,
+      "segment_samples": 18186240,
+      "sample_rate_hz": null,
+      "segment_seconds": null,
+      "inspection_coverage": "full_segment",
+      "examined_samples": 18186240,
+      "nonfinite_samples": 0,
+      "peak_magnitude": 0.4309689919276952,
+      "peak_component": 0.41650390625,
+      "rms_magnitude": 0.07205246332936656,
+      "mean_i": -6.230833294155362e-07,
+      "mean_q": -1.4331426706400004e-06,
+      "clipped_percent": 0.0,
+      "parameter_note": "sample rate is caller-supplied; raw IQ stores no sample rate or RF center",
+      "recording_id": "red",
+      "candidate_spectrum": {
+        "assumed_sample_rate_hz": 2000000,
+        "fft_size": 8192,
+        "frames": 12,
+        "peaks": [
+          {
+            "offset_hz": 468017.578125,
+            "fraction_of_sample_rate": 0.2340087890625
+          },
+          {
+            "offset_hz": 127929.6875,
+            "fraction_of_sample_rate": 0.06396484375
+          },
+          {
+            "offset_hz": -987304.6875,
+            "fraction_of_sample_rate": -0.49365234375
+          },
+          {
+            "offset_hz": 967041.015625,
+            "fraction_of_sample_rate": 0.4835205078125
+          },
+          {
+            "offset_hz": 622314.453125,
+            "fraction_of_sample_rate": 0.3111572265625
+          },
+          {
+            "offset_hz": 718750.0,
+            "fraction_of_sample_rate": 0.359375
+          }
+        ],
+        "note": "peaks are spectral energy, not identified RM channels"
+      }
+    },
+    {
+      "file": "D:\\stm32Project\\信息波录制\\RX_RED_ganrao_1",
+      "format": "cf32_le",
+      "format_status": "raw_IQ_interpretation",
+      "bytes": 136052736,
+      "complex_samples": 17006592,
+      "start_sample": 0,
+      "segment_samples": 17006592,
+      "sample_rate_hz": null,
+      "segment_seconds": null,
+      "inspection_coverage": "full_segment",
+      "examined_samples": 17006592,
+      "nonfinite_samples": 0,
+      "peak_magnitude": 0.4080667222199394,
+      "peak_component": 0.33056640625,
+      "rms_magnitude": 0.044171820135594383,
+      "mean_i": -1.442340527426071e-06,
+      "mean_q": -6.720509832305026e-06,
+      "clipped_percent": 0.0,
+      "parameter_note": "sample rate is caller-supplied; raw IQ stores no sample rate or RF center",
+      "recording_id": "red-ganrao-1",
+      "candidate_spectrum": {
+        "assumed_sample_rate_hz": 2000000,
+        "fft_size": 8192,
+        "frames": 12,
+        "peaks": [
+          {
+            "offset_hz": -183593.75,
+            "fraction_of_sample_rate": -0.091796875
+          },
+          {
+            "offset_hz": -209716.796875,
+            "fraction_of_sample_rate": -0.1048583984375
+          },
+          {
+            "offset_hz": -550781.25,
+            "fraction_of_sample_rate": -0.275390625
+          },
+          {
+            "offset_hz": -860595.703125,
+            "fraction_of_sample_rate": -0.4302978515625
+          },
+          {
+            "offset_hz": -571777.34375,
+            "fraction_of_sample_rate": -0.285888671875
+          },
+          {
+            "offset_hz": -785156.25,
+            "fraction_of_sample_rate": -0.392578125
+          }
+        ],
+        "note": "peaks are spectral energy, not identified RM channels"
+      }
+    },
+    {
+      "file": "D:\\stm32Project\\信息波录制\\RX_RED_ganrao_2",
+      "format": "cf32_le",
+      "format_status": "raw_IQ_interpretation",
+      "bytes": 127541248,
+      "complex_samples": 15942656,
+      "start_sample": 0,
+      "segment_samples": 15942656,
+      "sample_rate_hz": null,
+      "segment_seconds": null,
+      "inspection_coverage": "full_segment",
+      "examined_samples": 15942656,
+      "nonfinite_samples": 0,
+      "peak_magnitude": 0.40668464297810475,
+      "peak_component": 0.375,
+      "rms_magnitude": 0.06096868281568997,
+      "mean_i": 8.381785926228352e-07,
+      "mean_q": -3.1068380325085107e-06,
+      "clipped_percent": 0.0,
+      "parameter_note": "sample rate is caller-supplied; raw IQ stores no sample rate or RF center",
+      "recording_id": "red-ganrao-2",
+      "candidate_spectrum": {
+        "assumed_sample_rate_hz": 2000000,
+        "fft_size": 8192,
+        "frames": 12,
+        "peaks": [
+          {
+            "offset_hz": 828125.0,
+            "fraction_of_sample_rate": 0.4140625
+          },
+          {
+            "offset_hz": -476562.5,
+            "fraction_of_sample_rate": -0.23828125
+          },
+          {
+            "offset_hz": -499755.859375,
+            "fraction_of_sample_rate": -0.2498779296875
+          },
+          {
+            "offset_hz": -213867.1875,
+            "fraction_of_sample_rate": -0.10693359375
+          },
+          {
+            "offset_hz": -898437.5,
+            "fraction_of_sample_rate": -0.44921875
+          },
+          {
+            "offset_hz": -183593.75,
+            "fraction_of_sample_rate": -0.091796875
+          }
+        ],
+        "note": "peaks are spectral energy, not identified RM channels"
+      }
+    },
+    {
+      "file": "D:\\stm32Project\\信息波录制\\RX_RED_ganrao_3",
+      "format": "cf32_le",
+      "format_status": "raw_IQ_interpretation",
+      "bytes": 136314880,
+      "complex_samples": 17039360,
+      "start_sample": 0,
+      "segment_samples": 17039360,
+      "sample_rate_hz": null,
+      "segment_seconds": null,
+      "inspection_coverage": "full_segment",
+      "examined_samples": 17039360,
+      "nonfinite_samples": 0,
+      "peak_magnitude": 0.4223703372784885,
+      "peak_component": 0.39453125,
+      "rms_magnitude": 0.06305154764394386,
+      "mean_i": -6.399189050381e-07,
+      "mean_q": -2.094444174032945e-06,
+      "clipped_percent": 0.0,
+      "parameter_note": "sample rate is caller-supplied; raw IQ stores no sample rate or RF center",
+      "recording_id": "red-ganrao-3",
+      "candidate_spectrum": {
+        "assumed_sample_rate_hz": 2000000,
+        "fft_size": 8192,
+        "frames": 12,
+        "peaks": [
+          {
+            "offset_hz": 867919.921875,
+            "fraction_of_sample_rate": 0.4339599609375
+          },
+          {
+            "offset_hz": 528076.171875,
+            "fraction_of_sample_rate": 0.2640380859375
+          },
+          {
+            "offset_hz": -799804.6875,
+            "fraction_of_sample_rate": -0.39990234375
+          },
+          {
+            "offset_hz": -776367.1875,
+            "fraction_of_sample_rate": -0.38818359375
+          },
+          {
+            "offset_hz": 906982.421875,
+            "fraction_of_sample_rate": 0.4534912109375
+          },
+          {
+            "offset_hz": 343994.140625,
+            "fraction_of_sample_rate": 0.1719970703125
+          }
+        ],
+        "note": "peaks are spectral energy, not identified RM channels"
+      }
+    },
+    {
+      "file": "D:\\stm32Project\\信息波录制\\RX_BLUE",
+      "format": "cf32_le",
+      "format_status": "raw_IQ_interpretation",
+      "bytes": 158072832,
+      "complex_samples": 19759104,
+      "start_sample": 0,
+      "segment_samples": 19759104,
+      "sample_rate_hz": null,
+      "segment_seconds": null,
+      "inspection_coverage": "full_segment",
+      "examined_samples": 19759104,
+      "nonfinite_samples": 0,
+      "peak_magnitude": 0.3360315235654416,
+      "peak_component": 0.3125,
+      "rms_magnitude": 0.03546788344941146,
+      "mean_i": 3.1532142095107147e-07,
+      "mean_q": -6.410711835668257e-07,
+      "clipped_percent": 0.0,
+      "parameter_note": "sample rate is caller-supplied; raw IQ stores no sample rate or RF center",
+      "recording_id": "blue",
+      "candidate_spectrum": {
+        "assumed_sample_rate_hz": 2000000,
+        "fft_size": 8192,
+        "frames": 12,
+        "peaks": [
+          {
+            "offset_hz": -252197.265625,
+            "fraction_of_sample_rate": -0.1260986328125
+          },
+          {
+            "offset_hz": 292480.46875,
+            "fraction_of_sample_rate": 0.146240234375
+          },
+          {
+            "offset_hz": -592041.015625,
+            "fraction_of_sample_rate": -0.2960205078125
+          },
+          {
+            "offset_hz": 446533.203125,
+            "fraction_of_sample_rate": 0.2232666015625
+          },
+          {
+            "offset_hz": 249023.4375,
+            "fraction_of_sample_rate": 0.12451171875
+          },
+          {
+            "offset_hz": 350341.796875,
+            "fraction_of_sample_rate": 0.1751708984375
+          }
+        ],
+        "note": "peaks are spectral energy, not identified RM channels"
+      }
+    },
+    {
+      "file": "D:\\stm32Project\\信息波录制\\RX_BLUE_ganrao_1",
+      "format": "cf32_le",
+      "format_status": "raw_IQ_interpretation",
+      "bytes": 119799808,
+      "complex_samples": 14974976,
+      "start_sample": 0,
+      "segment_samples": 14974976,
+      "sample_rate_hz": null,
+      "segment_seconds": null,
+      "inspection_coverage": "full_segment",
+      "examined_samples": 14974976,
+      "nonfinite_samples": 0,
+      "peak_magnitude": 0.45297054420686933,
+      "peak_component": 0.4267578125,
+      "rms_magnitude": 0.11887539309945924,
+      "mean_i": 3.1281678368800056e-06,
+      "mean_q": 4.341161485834769e-06,
+      "clipped_percent": 0.0,
+      "parameter_note": "sample rate is caller-supplied; raw IQ stores no sample rate or RF center",
+      "recording_id": "blue-ganrao-1",
+      "candidate_spectrum": {
+        "assumed_sample_rate_hz": 2000000,
+        "fft_size": 8192,
+        "frames": 12,
+        "peaks": [
+          {
+            "offset_hz": -453125.0,
+            "fraction_of_sample_rate": -0.2265625
+          },
+          {
+            "offset_hz": 444580.078125,
+            "fraction_of_sample_rate": 0.2222900390625
+          },
+          {
+            "offset_hz": 704345.703125,
+            "fraction_of_sample_rate": 0.3521728515625
+          },
+          {
+            "offset_hz": 84960.9375,
+            "fraction_of_sample_rate": 0.04248046875
+          },
+          {
+            "offset_hz": 238769.53125,
+            "fraction_of_sample_rate": 0.119384765625
+          },
+          {
+            "offset_hz": 200439.453125,
+            "fraction_of_sample_rate": 0.1002197265625
+          }
+        ],
+        "note": "peaks are spectral energy, not identified RM channels"
+      }
+    },
+    {
+      "file": "D:\\stm32Project\\信息波录制\\RX_BLUE_ganrao_2",
+      "format": "cf32_le",
+      "format_status": "raw_IQ_interpretation",
+      "bytes": 120848384,
+      "complex_samples": 15106048,
+      "start_sample": 0,
+      "segment_samples": 15106048,
+      "sample_rate_hz": null,
+      "segment_seconds": null,
+      "inspection_coverage": "full_segment",
+      "examined_samples": 15106048,
+      "nonfinite_samples": 0,
+      "peak_magnitude": 0.4651116632908958,
+      "peak_component": 0.45654296875,
+      "rms_magnitude": 0.10799790718447282,
+      "mean_i": 1.4095334841217239e-06,
+      "mean_q": 1.318284074034453e-06,
+      "clipped_percent": 0.0,
+      "parameter_note": "sample rate is caller-supplied; raw IQ stores no sample rate or RF center",
+      "recording_id": "blue-ganrao-2",
+      "candidate_spectrum": {
+        "assumed_sample_rate_hz": 2000000,
+        "fft_size": 8192,
+        "frames": 12,
+        "peaks": [
+          {
+            "offset_hz": -412597.65625,
+            "fraction_of_sample_rate": -0.206298828125
+          },
+          {
+            "offset_hz": -952148.4375,
+            "fraction_of_sample_rate": -0.47607421875
+          },
+          {
+            "offset_hz": 408447.265625,
+            "fraction_of_sample_rate": 0.2042236328125
+          },
+          {
+            "offset_hz": 388427.734375,
+            "fraction_of_sample_rate": 0.1942138671875
+          },
+          {
+            "offset_hz": -391357.421875,
+            "fraction_of_sample_rate": -0.1956787109375
+          },
+          {
+            "offset_hz": 228759.765625,
+            "fraction_of_sample_rate": 0.1143798828125
+          }
+        ],
+        "note": "peaks are spectral energy, not identified RM channels"
+      }
+    },
+    {
+      "file": "D:\\stm32Project\\信息波录制\\RX_BLUE_ganrao_3",
+      "format": "cf32_le",
+      "format_status": "raw_IQ_interpretation",
+      "bytes": 146415616,
+      "complex_samples": 18301952,
+      "start_sample": 0,
+      "segment_samples": 18301952,
+      "sample_rate_hz": null,
+      "segment_seconds": null,
+      "inspection_coverage": "full_segment",
+      "examined_samples": 18301952,
+      "nonfinite_samples": 0,
+      "peak_magnitude": 0.3909132847349281,
+      "peak_component": 0.365234375,
+      "rms_magnitude": 0.10243641274718204,
+      "mean_i": -3.817205109460455e-06,
+      "mean_q": -3.0053840448958667e-06,
+      "clipped_percent": 0.0,
+      "parameter_note": "sample rate is caller-supplied; raw IQ stores no sample rate or RF center",
+      "recording_id": "blue-ganrao-3",
+      "candidate_spectrum": {
+        "assumed_sample_rate_hz": 2000000,
+        "fft_size": 8192,
+        "frames": 12,
+        "peaks": [
+          {
+            "offset_hz": -107421.875,
+            "fraction_of_sample_rate": -0.0537109375
+          },
+          {
+            "offset_hz": -651611.328125,
+            "fraction_of_sample_rate": -0.3258056640625
+          },
+          {
+            "offset_hz": -49804.6875,
+            "fraction_of_sample_rate": -0.02490234375
+          },
+          {
+            "offset_hz": 46386.71875,
+            "fraction_of_sample_rate": 0.023193359375
+          },
+          {
+            "offset_hz": 104248.046875,
+            "fraction_of_sample_rate": 0.0521240234375
+          },
+          {
+            "offset_hz": -1708.984375,
+            "fraction_of_sample_rate": -0.0008544921875
+          }
+        ],
+        "note": "peaks are spectral energy, not identified RM channels"
+      }
+    }
+  ]
+}

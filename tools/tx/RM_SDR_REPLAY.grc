@@ -1,0 +1,85 @@
+options:
+  parameters:
+    author: ''
+    catch_exceptions: 'True'
+    category: '[GRC Hier Blocks]'
+    comment: 'Real raw IQ replay. Set file, original sample rate and RX LO before Run. Defaults are current RX candidates only.'
+    description: 'Complex File Source directly to IIO TX; no GFSK Mod and no Throttle.'
+    generate_options: no_gui
+    hier_block_src_path: '.:'
+    id: RM_SDR_REPLAY
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    realtime_scheduling: ''
+    run_command: '{python} -u {filename}'
+    run_options: prompt
+    title: 'RM SDR recorded IQ TX - verify capture parameters'
+  states:
+    coordinate: [16, 0]
+    rotation: 0
+    state: enabled
+blocks:
+- name: samp_rate
+  id: variable
+  parameters:
+    value: '2000000'
+    comment: 'Candidate only; use the ORIGINAL capture sample rate.'
+  states: {coordinate: [16, 16], rotation: 0, state: enabled}
+- name: tx_freq
+  id: variable
+  parameters:
+    value: '432600000'
+    comment: 'Candidate red wideband RX center, NOT the info carrier. Blue candidate: 434520000.'
+  states: {coordinate: [192, 16], rotation: 0, state: enabled}
+- name: amplitude
+  id: variable
+  parameters: {value: '1.0'}
+  states: {coordinate: [368, 16], rotation: 0, state: enabled}
+- name: tx_attenuation
+  id: variable
+  parameters: {value: '60.0'}
+  states: {coordinate: [544, 16], rotation: 0, state: enabled}
+- name: blocks_file_source_0
+  id: blocks_file_source
+  parameters:
+    file: /home/user/code/Info/RX_RED
+    type: complex
+    repeat: 'False'
+    vlen: '1'
+    begin_tag: pmt.PMT_NIL
+    offset: '0'
+    length: '0'
+    comment: 'Select the actual raw cf32 recording. Offset/length are complex samples.'
+  states: {coordinate: [16, 160], rotation: 0, state: enabled}
+- name: blocks_multiply_const_vxx_0
+  id: blocks_multiply_const_vxx
+  parameters: {type: complex, const: amplitude, vlen: '1'}
+  states: {coordinate: [320, 160], rotation: 0, state: enabled}
+- name: iio_fmcomms2_sink_0
+  id: iio_fmcomms2_sink
+  parameters:
+    type: fc32
+    uri: ip:192.168.1.102
+    frequency: tx_freq
+    samplerate: samp_rate
+    bandwidth: samp_rate
+    buffer_size: '32768'
+    tx1_en: 'True'
+    tx2_en: 'False'
+    cyclic: 'False'
+    rf_port_select: "'A'"
+    attenuation1: tx_attenuation
+    attenuation2: '60'
+    len_tag_key: ''
+    filter_source: "'Auto'"
+    filter: ''
+    fpass: '0'
+    fstop: '0'
+  states: {coordinate: [592, 144], rotation: 0, state: enabled}
+connections:
+- [blocks_file_source_0, '0', blocks_multiply_const_vxx_0, '0']
+- [blocks_multiply_const_vxx_0, '0', iio_fmcomms2_sink_0, '0']
+metadata:
+  file_format: 1
+  grc_version: 3.10.1.1

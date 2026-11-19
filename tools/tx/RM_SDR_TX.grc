@@ -158,14 +158,14 @@
       "name": "blocks_file_source_0",
       "id": "blocks_file_source",
       "parameters": {
-        "file": "rm_test_position.bin",
+        "file": "/home/user/code/RM_str/tools/outputs/rm_test_position.bin",
         "type": "byte",
         "repeat": "True",
         "vlen": "1",
         "begin_tag": "pmt.PMT_NIL",
         "offset": "0",
         "length": "0",
-        "comment": "Packed bytes from tools/generate_radio_test_data.py; select the absolute path."
+        "comment": "Packed bytes from tools/tx/generate_radio_test_data.py; select the absolute path."
       },
       "states": {
         "bus_sink": false,
