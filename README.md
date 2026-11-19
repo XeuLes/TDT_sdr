@@ -226,6 +226,12 @@ zsh blue.sh   # 蓝方
 
 启动脚本默认检查当前用户的 `~/miniconda3`，存在时激活 `sdr` 环境；可通过 `CONDA_ROOT`、`CONDA_ENV_NAME`、`PYTHON_BIN` 覆盖。也可以分别在 GNU Radio 和 ROS 2 环境的终端中运行 `python3 GFSK_RX_RED.py`（蓝方为 `GFSK2_RX_BLUE.py`）和 `ros2 run radio_recive radio_recive_node`。
 
+## 无信号源联调
+
+模拟发射工具和 GRC 流图见 [模拟发射与回环联调](docs/模拟发射与回环联调.md)。先使用 `python3 tools/rm_sdr_tx.py --mode loopback` 检查软件链路，再按文档配置 A3 发射、E200 接收；GRC 入口为 `RM_SDR_TX.grc`。
+
+工具提供坐标、血量和测试密钥的应用帧，射频参数按当前接收器配置用于实验联调，尚未确认与官方物理层一致。硬件发射需要显式选择 `--mode tx` 并提供发射设备的 `--uri`。
+
 ## 进程间通信接口
 
 ### ZeroMQ
