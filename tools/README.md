@@ -9,6 +9,7 @@
 | `tx/rm_sdr_tx.py` | 生成坐标、血量、密钥测试波形，软件回环或发射 | GNU Radio；回环还需项目 OOT |
 | `tx/generate_radio_test_data.py` | 为模拟发射生成 packed-byte 文件 | Python 标准库 |
 | `tx/RM_SDR_TX.grc` | Byte → GFSK Mod 的模拟发射流图 | GNU Radio Companion + IIO |
+| `rx/test_recording.py` | 逐组尝试录波参数，通过 gr-robomaster 测试信息波并统计 CRC 有效帧 | GNU Radio + OOT + NumPy；无需 SDR |
 | `rx/rm_sdr_file_rx.py` | 实录 IQ → 项目解调块 → 应用帧 CRC；可对接现有 ROS | GNU Radio + OOT + NumPy |
 | `rx/sdr_rx_probe.py` | 从硬件接收 IQ，测频谱、功率和削顶 | GNU Radio IIO + NumPy |
 | `sdr_tools/`、`radio_test_frames.py` | 录波选择、采样检查、运行控制、CRC 和协议共用代码 | 按调用功能加载依赖 |
@@ -28,6 +29,14 @@ python3 tools/tx/rm_sdr_replay.py --recording blue-ganrao-1
 ```
 
 以上命令不打开 SDR，不改变原始文件。默认按 `cf32_le` 解释并抽查文件头、中、尾；`--full-scan` 检查选定范围的所有采样。录制目录可用 `--recording-dir` 指定，任意录波可用 `--file` 指定。
+
+在已安装 GNU Radio 和 `gr-robomaster` 的 Linux 环境中，先用下面这条命令测试信息波能否被解码，不需要连接 E200 或发射设备：
+
+```bash
+python3 tools/rx/test_recording.py --recording red
+```
+
+根据本批信息波每 bit 持续 47 μs 的信息，默认只尝试 3 组 SPS=47 参数：RM_sdr 原始 IQ、WHU 原始 IQ、已居中的信息波 IQ；三组都在解调输入处得到 1 MSa/s。`CRC_VALID_FRAMES` 大于 0 表示该组参数解出了有效应用帧，完整日志放在 `tools/outputs/rx-tests/`。旧版 SPS=52 参数仍可通过 `--profiles` 显式选择。具体步骤见实录指南第 3 节；官方新旧版参数见[官方无线电参数说明](docs/官方无线电参数说明.md)。
 
 索引中的 Linux 目录使用相对路径 `../../Info`，相对于 `tools/recordings.json` 解析，启动位置不会影响它。Windows 仍默认读取源码项目同级的“信息波录制”，可将命令中的 `python3` 替换为相应的 `python`。
 

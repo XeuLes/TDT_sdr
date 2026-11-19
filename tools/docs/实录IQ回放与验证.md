@@ -54,42 +54,73 @@ python3 tools/tx/rm_sdr_replay.py --recording red --sample-rate 2000000 --spectr
 
 确认方法是：找当时录制流图或设备配置；再对照采样率、信道偏移、SPS 和有效 CRC 帧。只看到频谱，或者只发现访问码，都不足以确认完整参数。直接改变播放采样率会改变时长、码率和频谱；工具不自动重采样。
 
-## 3. 不连接 SDR，先离线解码
+## 3. 用 gr-robomaster 测试文件：不连接 SDR
 
-Linux 使用与已安装 `gr-robomaster` 相同的 Python 环境。先检查候选设置：
+这一步在 Linux 主机的软件中处理录波，不连接 E200 或发射设备，也不需要启动 ROS。它把原来的 SDR Source 换成 File Source，后面继续运行项目的鉴频、gr-robomaster 解调模块和应用帧 CRC。
 
-```bash
-python3 tools/rx/rm_sdr_file_rx.py --recording red --sample-rate 2000000 --mode describe
-python3 tools/rx/rm_sdr_file_rx.py --recording blue --sample-rate 2000000 --mode describe
-```
-
-再运行单次离线解码：
+先同步最新 `tools` 到 `/home/user/code/RM_str/tools`，使用与现有接收程序相同、已能导入 GNU Radio 和 `robomaster` 的 Python：
 
 ```bash
-python3 tools/rx/rm_sdr_file_rx.py --recording red --sample-rate 2000000 --fast
-python3 tools/rx/rm_sdr_file_rx.py --recording blue --sample-rate 2000000 --fast
+cd /home/user/code/RM_str
+python3 tools/rx/test_recording.py --recording red
 ```
 
-链路为 Complex File Source → 频移滤波 / 抽取 2 → 鉴频 → 原有浮点滤波 → 项目 OOT 解调 → 应用帧 CRC。三支路参数按当前红蓝流图构造，根目录文件不被导入或修改。
+蓝方使用 `--recording blue`。按本次提供的 **47 μs/bit** 作为测试前提，默认只测试下面三组，三组在进入解调器时都是 **1 MSa/s、SPS=47**：
 
-输出 `event=frame` 代表通过 CRC 的应用帧，包括命令字、序号和原始 payload；已知长度的坐标、血量、密钥还会展开显示。结束输出各信道的解调字节数与 CRC 统计。有有效帧返回 0，无有效帧返回 1，参数或依赖问题返回 2。不能将候选参数下“0 帧”解释为文件无信号或并非现场录制。
+| 参数组 | 文件采样率 | 信息波偏移：红 / 蓝 | 抽取倍数 | 解调器 SPS |
+| --- | --- | --- | --- | --- |
+| `rm-sdr` | 2 MSa/s | +600 / -600 kHz | 2 | 47 |
+| `whu-raw-47` | 3 MSa/s | +500 / -500 kHz | 3 | 47 |
+| `info-centered-47` | 1 MSa/s | 0 / 0 Hz | 1 | 47 |
 
-若实际录制参数与当前配置不同，可以缩小到单支路调整。例如下面只是“以 +450 kHz 为待验证中心”的用法示例，并不认定实际信道在那里：
+这三组比较的是录波保存位置，不是在猜比特时长。47 μs/bit 不能直接决定文件采样率：原始 3 MSa/s IQ 每 bit 有 141 点，抽取 3 倍后才是 47 点。
+
+`whu-raw-47` 采用 WHU 流图的原始接收布局，并按本批信号的 47 μs 时序解码；这不表示原 WHU 脚本中的 SPS=52 就能解析新版信号。`info-centered-47` 假设已保存居中的 1 MSa/s 信息波 IQ。官方新旧版依据见[官方无线电参数说明](官方无线电参数说明.md)。
+
+旧版 52 μs/bit 候选 `rm-sdr-52`、`whu-raw`、`info-centered` 仍可显式选择，但本批录波不再默认测试它们。
+
+每组结束时，会看到类似下面的结果格式；数字仅为说明格式，不是实录文件的已测结果：
+
+```text
+CRC_VALID_FRAMES=8  DECODED_FRAGMENT_BYTES=360
+```
+
+- `CRC_VALID_FRAMES > 0`：这组配置通过 gr-robomaster 解出了 CRC 有效的应用帧；随后会显示最多三条数据示例。
+- `DECODED_FRAGMENT_BYTES > 0`，但 CRC 为 0：物理解调已有片段输出，应用数据仍未通过校验。
+- 两项都是 0：这些参数没有解出有效数据，不能据此判断录波没有信息波。
+- `ERROR` 或导入失败：先解决软件环境或配置错误，不是无线接收失败。
+
+所有候选都没通过，说明需要进一步检查采样率、信道位置、符号时序或数据格式。这个入口不会发射，不绑定 ZeroMQ 端口，只读原文件；详细日志及 JSON 汇总放在 `tools/outputs/rx-tests/`。
+
+CRC 通过证明该组软件解码配置可用，不能仅凭它唯一恢复当时的绝对射频接收中心。完整记录可能有多种等价的采样率/滤波配置；发射频率仍须结合原录制中心或已知信道位置确定。
+
+### 单独复测一个参数组
+
+若汇总显示 `whu-raw-47` 通过，可以单独运行：
 
 ```bash
-python3 tools/rx/rm_sdr_file_rx.py --recording red --sample-rate 2000000 \
-  --only info --info-offset 450000 --channel-width 200000 --sps 47 --fast
+python3 tools/rx/rm_sdr_file_rx.py --recording red --profile whu-raw-47 --only info --fast
 ```
 
-`--sps` 是**抽取 2 倍以后**每符号的采样数。密钥支路可选 `--only key1` / `key2` 并调整 `--key1-offset` / `--key2-offset`。第三份 `ganrao_3` 也是一段录波，不等同于现有第三个解调端口；可以选用任一密钥解调支路并设置它的实际偏移。
+链路为：Complex File Source → 频移滤波 / 按所选倍数抽取 → 鉴频 → 浮点滤波 → gr-robomaster → 应用帧 CRC。`--fast` 尽快处理文件；不加它就按录制采样率限速。输出的 `event=frame` 是 CRC 有效应用帧，`event=summary` 是结束统计。
 
-需要接入现有 ROS 时，先停掉占用相同端口的根目录接收流图，再启动现有 ROS 节点，并执行：
+`--mode describe` 只打印这组配置，不读取波形进行解码，也不是必须先执行的步骤：
 
 ```bash
-python3 tools/rx/rm_sdr_file_rx.py --recording red --sample-rate 2000000 --publish --repeat
+python3 tools/rx/rm_sdr_file_rx.py --recording red --profile whu-raw-47 --mode describe
 ```
 
-`--publish` 按录制速度运行，将 OOT 原始 15 字节片段送到现有本机 5555、6666、6667 端口，ROS 集成无需改动。此时不能加 `--fast`。不加 `--publish` 就不绑定任何 ZeroMQ 端口。
+需要手动调参时，可以覆盖 `--sample-rate`、`--info-offset`、`--channel-width`、`--transition-width`、`--decimation` 和 `--sps`；SPS 指所选抽取之后、到达解调器的每符号采样数。工具检查滤波带宽，避免因抽取过多而混叠。未指定 `--profile` 的旧命令仍按 RM_sdr 的抽取 2 倍、SPS=47 解释。
+
+### 已经解码成功后接入现有 ROS
+
+只在已通过测试的参数组上接入。先停掉占用相同 ZeroMQ 端口的根目录接收流图，启动原 ROS 节点，再执行，例如：
+
+```bash
+python3 tools/rx/rm_sdr_file_rx.py --recording red --profile whu-raw-47 --only info --publish --repeat
+```
+
+`--publish` 按实时速度把 OOT 原始 15 字节片段送往现有本机端口；此时去掉 `--fast`。信息波端口为 5555，密钥支路为 6666、6667。密钥可通过 `--only key1` / `key2` 及相应偏移参数单独测试；第三份 `ganrao_3` 文件不能仅凭名字就认定对应当前某个固定解调支路。
 
 ## 4. 用 SDR 发射录波
 
@@ -131,7 +162,7 @@ File Source 默认指向 `/home/user/code/Info/RX_RED`；播放蓝方时改为�
 
 ## 验证范围
 
-2026-11-19 在 Windows Python 3.12.10 下完成 23 项测试，包含 Linux/Windows 默认目录与显式目录覆盖、文件边界、采样值、CRC 流式重组、候选支路参数、已知频率信号的频谱和功率检查。8 份录波已完成全部采样扫描，未发现 NaN、Inf 或 I/Q 分量达到 0.98 的削顶；结果见 [recording_inspection.json](../reports/recording_inspection.json)。两份发射 GRC 已完成 YAML/JSON 解析、连接引用和输入类型检查。
+2026-11-19 在 Windows Python 3.12.10 下完成 27 项测试，包含 Linux/Windows 默认目录与显式目录覆盖、文件边界、采样值、CRC 流式重组、六组候选配置、默认 47 μs 时序及抽取后的带宽检查、混合控制台日志中的 CRC 汇总提取、已知频率信号的频谱和功率检查。8 份录波已完成全部采样扫描，未发现 NaN、Inf 或 I/Q 分量达到 0.98 的削顶；结果见 [recording_inspection.json](../reports/recording_inspection.json)。两份发射 GRC 已完成 YAML/JSON 解析、连接引用和输入类型检查。
 
 当前机器的 MSYS Python 3.14 在长循环扫描中出现过异常，本次使用签名有效的 Python 官方便携版及校验哈希的 NumPy/PyYAML 测试包复核。临时环境仅位于 `tools/outputs/`，未修改系统安装或 PATH，也不纳入 Git。此 Windows 工作区可用以下命令检查录波：
 

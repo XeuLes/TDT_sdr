@@ -151,6 +151,36 @@ class RecordingTest(unittest.TestCase):
             code, _, _ = self.invoke(rx_main, arguments + suffix)
             self.assertEqual(code, 2)
 
+    def test_receive_profiles_use_correct_sample_stage_and_allow_overrides(self):
+        base = ["--file", str(self.path), "--side", "red", "--mode", "describe", "--only", "info"]
+        for profile, sample_rate, decimation, sps, offset in (
+            ("rm-sdr", 2000000, 2, 47, 600000),
+            ("rm-sdr-52", 2000000, 2, 52, 600000),
+            ("whu-raw", 3000000, 3, 52, 500000),
+            ("info-centered", 1000000, 1, 52, 0),
+            ("whu-raw-47", 3000000, 3, 47, 500000),
+            ("info-centered-47", 1000000, 1, 47, 0),
+        ):
+            code, out, error = self.invoke(rx_main, base + ["--profile", profile])
+            self.assertEqual(code, 0, error)
+            config = json.loads(out)
+            self.assertEqual(config["sample_rate_hz"], sample_rate)
+            self.assertEqual(config["decimation"], decimation)
+            self.assertEqual(config["demod_sample_rate_hz"], 1000000)
+            self.assertEqual(config["sps_after_decimation"], sps)
+            self.assertEqual(config["channels"][0]["offset_hz"], offset)
+        code, out, _ = self.invoke(rx_main, base + ["--profile", "whu-raw", "--decimation", "2",
+                                                  "--sps", "78", "--info-offset", "450000"])
+        self.assertEqual(code, 0)
+        config = json.loads(out)
+        self.assertEqual(config["demod_sample_rate_hz"], 1500000)
+        self.assertEqual(config["sps_after_decimation"], 78)
+        self.assertEqual(config["channels"][0]["offset_hz"], 450000)
+        for invalid in (["--decimation", "0"], ["--channel-width", "1200000"],
+                        ["--transition-width", "0"]):
+            code, _, _ = self.invoke(rx_main, base + ["--profile", "whu-raw"] + invalid)
+            self.assertEqual(code, 2)
+
     @unittest.skipIf(np is None, "NumPy is required for spectrum checks")
     def test_recording_spectrum_recovers_known_tone(self):
         count, sample_rate, frequency = 8192, 2_000_000, 250_000
