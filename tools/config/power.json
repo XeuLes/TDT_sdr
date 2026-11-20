@@ -1,0 +1,23 @@
+{
+  "uri": "ip:192.168.1.102",
+  "tx_channel": 1,
+  "reference_attenuation_db": 30,
+  "reference_amplitude": 0.2,
+  "measurement": "Strongest selected carrier, RF-on dBm at the intended output reference plane.",
+  "measured_burst_dbm": {
+    "red:info": null,
+    "red:jam1": null,
+    "red:jam2": null,
+    "red:jam3": null,
+    "red:info+jam1": null,
+    "red:info+jam2": null,
+    "red:info+jam3": null,
+    "blue:info": null,
+    "blue:jam1": null,
+    "blue:jam2": null,
+    "blue:jam3": null,
+    "blue:info+jam1": null,
+    "blue:info+jam2": null,
+    "blue:info+jam3": null
+  }
+}

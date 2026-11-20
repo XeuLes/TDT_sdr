@@ -1,58 +1,158 @@
-# RM_sdr 独立联调工具
+# RM 无线电工具
 
-本目录提供实录 IQ 回放、模拟发射、录波离线解码和硬件接收诊断。根目录红蓝接收流图、`gr-robomaster` 和 ROS 集成不由这些工具修改。
+提供官方参数造波、现场 IQ 回放、软件环回和工程接收启动入口。官方造波采用 **RMUC 2026 规则 V2.2.0 + 通信协议 V2.0.0**；2027 V1.0.0 尚未公布完整电磁波参数，不将这组数值标为 2027 最终参数。
 
-| 目录 / 文件 | 功能 | 需要什么 |
-| --- | --- | --- |
-| `tx/rm_sdr_replay.py` | 检查实录 IQ；直接送入 SDR 发射 | 检查只需 Python；发射需 GNU Radio IIO |
-| `tx/RM_SDR_REPLAY.grc` | 实录 IQ 发射的 Companion 流图 | GNU Radio Companion + IIO |
-| `tx/rm_sdr_tx.py` | 生成坐标、血量、密钥测试波形，软件回环或发射 | GNU Radio；回环还需项目 OOT |
-| `tx/generate_radio_test_data.py` | 为模拟发射生成 packed-byte 文件 | Python 标准库 |
-| `tx/RM_SDR_TX.grc` | Byte → GFSK Mod 的模拟发射流图 | GNU Radio Companion + IIO |
-| `rx/test_recording.py` | 逐组尝试录波参数，通过 gr-robomaster 测试信息波并统计 CRC 有效帧 | GNU Radio + OOT + NumPy；无需 SDR |
-| `rx/rm_sdr_file_rx.py` | 实录 IQ → 项目解调块 → 应用帧 CRC；可对接现有 ROS | GNU Radio + OOT + NumPy |
-| `rx/sdr_rx_probe.py` | 从硬件接收 IQ，测频谱、功率和削顶 | GNU Radio IIO + NumPy |
-| `sdr_tools/`、`radio_test_frames.py` | 录波选择、采样检查、运行控制、CRC 和协议共用代码 | 按调用功能加载依赖 |
-| `recordings.json` | 8 个现场录波的索引；记录参数暂留未知 | Linux 默认读取 `/home/user/code/Info` |
-| `reports/` | 本机实际录波的检查结果 | 报告会注明检查覆盖范围及假设 |
-| `tests/` | 文件处理、流式 CRC、协议及频谱验证 | 标准库；频谱测试需 NumPy |
+```text
+tools/
+  tx/official_tx.py       官方参数造波并发射
+  tx/replay_tx.py         现场 IQ 文件回放发射
+  rx/project_rx.py        启动工程原有接收流图
+  test/loopback.py        无硬件软件环回，使用 gr-robomaster
+  config/messages.json   可编辑的红蓝广播数据
+  config/power.json      发射功率校准
+  config/recordings.json  录波位置、实测参数、回放频率
+  sdr_tools/             共用协议、造波与运行代码
+  tests/                 核心自动检查
+  PARAMETERS.md          官方参数、录波参数、命令选项
+```
 
-## 从实录开始
+## 环境和目录
 
-Linux 实际项目目录为 `/home/user/code/RM_str`，录波目录为 `/home/user/code/Info`。在项目根目录运行：
+在已安装项目依赖的 Linux 系统 Python 中运行。软件环回需要 GNU Radio、NumPy 和 `gr-robomaster`；硬件发射另需 GNU Radio IIO，工程接收还使用项目原有的 Qt/IIO/ZeroMQ 环境。
 
 ```bash
 cd /home/user/code/RM_str
-python3 tools/tx/rm_sdr_replay.py --list
-python3 tools/tx/rm_sdr_replay.py --recording red
-python3 tools/tx/rm_sdr_replay.py --recording blue-ganrao-1
+python3 -c "from gnuradio import gr, robomaster; print('ready')"
 ```
 
-以上命令不打开 SDR，不改变原始文件。默认按 `cf32_le` 解释并抽查文件头、中、尾；`--full-scan` 检查选定范围的所有采样。录制目录可用 `--recording-dir` 指定，任意录波可用 `--file` 指定。
+原始录波放在 `/home/user/code/Info`，不需要复制到工程。Windows 的默认录波位置为工程同级的“信息波录制”。目录不同时，回放和录波环回可加 `--recording-dir /实际目录`。
 
-在已安装 GNU Radio 和 `gr-robomaster` 的 Linux 环境中，先用下面这条命令测试信息波能否被解码，不需要连接 E200 或发射设备：
+发射器默认使用 A3 的 `ip:192.168.1.102`、TX1；接收器默认沿用工程的 E200 URI 和 RX 配置。TX 与 RX 是独立进程，可运行在不同电脑上。
+
+## 1. 官方参数造波发射
+
+先运行接收端，再在发射端选择阵营和波形。以下 `--attenuation 60` 是手动台架衰减，绝对 dBm 尚需测量；严格功率运行方式见“功率校准”。
 
 ```bash
-python3 tools/rx/test_recording.py --recording red
+# 红方信息波
+python3 tools/tx/official_tx.py --side red --wave info --attenuation 60
+
+# 蓝方一级干扰波
+python3 tools/tx/official_tx.py --side blue --wave jam1 --attenuation 60
+
+# 红方三级干扰波
+python3 tools/tx/official_tx.py --side red --wave jam3 --attenuation 60
+
+# 信息波 + 一档干扰波同时发射
+python3 tools/tx/official_tx.py --side red --wave info jam2 --attenuation 60
 ```
 
-根据本批信息波每 bit 持续 47 μs 的信息，默认只尝试 3 组 SPS=47 参数：RM_sdr 原始 IQ、WHU 原始 IQ、已居中的信息波 IQ；三组都在解调输入处得到 1 MSa/s。`CRC_VALID_FRAMES` 大于 0 表示该组参数解出了有效应用帧，完整日志放在 `tools/outputs/rx-tests/`。旧版 SPS=52 参数仍可通过 `--profiles` 显式选择。具体步骤见实录指南第 3 节；官方新旧版参数见[官方无线电参数说明](docs/官方无线电参数说明.md)。
+`--wave` 可选 `info`、`jam1`、`jam2`、`jam3`。可以单发，也可以选择 `info` 加一档干扰；三档干扰是互选等级。红蓝阵营通过 `--side red|blue` 选择。
 
-索引中的 Linux 目录使用相对路径 `../../Info`，相对于 `tools/recordings.json` 解析，启动位置不会影响它。Windows 仍默认读取源码项目同级的“信息波录制”，可将命令中的 `python3` 替换为相应的 `python`。
+默认发射 10 秒；加 `--duration 30` 改为 30 秒，`--duration 0` 持续到 Ctrl+C。设备地址不同时加 `--uri ip:实际地址`。
 
-**现场文件的采样率、接收中心频率没有附带记录。** `recordings.json` 不会因为名字叫红方／蓝方，就自动采用当前接收器参数。发射必须显式填写 `--sample-rate`、`--frequency` 和 `--uri`。这两个录制参数确认前，先按[实录 IQ 回放与验证](docs/实录IQ回放与验证.md)完成离线核查。
+信息波和干扰波组合时，IQ 保留官方定义的 50 dB 相对功率差。信息波使用 `0x0A01` 至 `0x0A05`，各 10 Hz、合计 1400 byte/s；干扰波每秒含 10 个 `0x0A06`，其余为随机填充，合计 1350 byte/s。数据以 0.3 秒为周期循环，周期内包序号递增。15 字节分片跨应用帧和发送批次连续拼接，没有额外 AA 前导码或逐应用帧补零。
 
-## 按任务查文档
+### 改变发送数据
 
-- [实录 IQ 回放与验证](docs/实录IQ回放与验证.md)：8 个录波的选择、候选参数、离线解码、SDR 发射和 GRC。
-- [模拟发射与回环联调](docs/模拟发射与回环联调.md)：人工测试数据与 A3/E200 联调。
-- [无线接收故障排查](docs/无线接收故障排查.md)：区分没信号和解不出数据。
-- [Ubuntu 22.04 / ANTSDR E200 复现指南](docs/Ubuntu22.04_ANTSDR_E200_复现指南.md)：现有集成接收环境。
+编辑 `tools/config/messages.json`，保存后重启发射器。也可以复制为自己的 JSON，再用 `--data /路径/messages.json` 指定。
 
-旧命令 `tools/rm_sdr_tx.py`、`tools/generate_radio_test_data.py` 和 `tools/sdr_rx_probe.py` 保留兼容入口；实现已归到 `tx/`、`rx/`。原 `tools/RM_SDR_TX.grc` 移到 `tools/tx/`。默认生成数据放在 `tools/outputs/`，不纳入 Git。
+`red`、`blue` 表示广播源所在阵营；按官方定义，广播内容描述对方队伍。每组字段如下：
+
+| 字段 | 内容 |
+| --- | --- |
+| `positions_cm` | 六组 `[x,y]`，顺序为英雄、工程、3号步兵、4号步兵、空中、哨兵，单位 cm |
+| `hp` | 六个血量，顺序为英雄、工程、3号步兵、4号步兵、保留位、哨兵；保留位填 0 |
+| `ammo` | 五个允许发弹量，顺序为英雄、3号步兵、4号步兵、空中、哨兵 |
+| `status` | `remaining_gold` 剩余金币、`total_gold` 累计金币、`flags` 场地状态低 16 位 |
+| `buffs` | 五行，顺序为英雄、工程、3号步兵、4号步兵、哨兵；每行为 `[回血,冷却,防御,负防御,攻击]` |
+| `sentry_stance` | 哨兵姿态，1～6 |
+| `robot_states` | 上述五台地面机器人的主要状态，0～3 |
+| `key` | 6 个 ASCII 字母或数字，例如 `RED001` |
+
+CRC、长度、访问码和分片由程序生成。`0x0A05` 按通信协议 V2.0.0 编为 **41 字节**，含姿态和五个机器人状态字节。
+
+### 功率校准
+
+官方功率目标为信息波 −60 dBm、干扰波 −10 dBm。硬件衰减单位 dB 与输出功率单位 dBm 不等价。
+
+1. 选择阵营/波形，用 `--attenuation 30` 发射，测量所选载波在 RF 开启期间的输出功率。组合波测量最强的干扰载波，参考面与实际使用的射频通路保持一致。
+2. 在 `tools/config/power.json` 填写对应 `measured_burst_dbm`，例如 `red:info` 或 `red:info+jam1`。同时确认 URI、TX1、参考衰减 30 dB 与测量条件一致。
+3. 发射时去掉 `--attenuation`，程序按校准值计算硬件衰减。若没有校准值，会在打开硬件前报错。
 
 ```bash
+python3 tools/tx/official_tx.py --side red --wave info
+```
+
+手动指定 `--attenuation` 用于台架联调，此时程序会标记绝对功率未校准。校准计算仍需用仪表确认最终载波功率及组合波功率差。
+
+## 2. 现场录波回放发射
+
+```bash
+python3 tools/tx/replay_tx.py --list
+
+# 单次播放 RX_RED
+python3 tools/tx/replay_tx.py --recording red --attenuation 60
+
+# 循环播放蓝方二级干扰 30 秒
+python3 tools/tx/replay_tx.py --recording blue-ganrao-2 --repeat --duration 30 --attenuation 60
+```
+
+可直接使用的录波为 `red`、`blue`、`blue-ganrao-1`、`blue-ganrao-2`、`blue-ganrao-3`。采样率和发射本振从预设读取，不需要手填 SPS、频偏或 LO。
+
+回放链路为 **CF32 文件 → IIO TX**，不再次 GFSK 调制、不重采样。文件中的数据、噪声和其他频谱分量一起回放；需要改变业务数据时使用官方造波入口。程序检查文件长度和 SHA-256，避免将已确认参数用于不同文件。
+
+录波采用成功解码的 **2 MSa/s、104 个文件采样点/bit** 解释；接收端抽取 2 倍后应选择 **SPS=52**。完整参数和每个文件的发射频率见 [PARAMETERS.md](PARAMETERS.md)。红方三份干扰录波尚无可用预设，保留在索引和参数表中，不作为自动发射选择。
+
+## 3. 软件环回：不连接 SDR
+
+```bash
+# 官方红方信息波 → gr-robomaster
+python3 tools/test/loopback.py --side red --wave info
+
+# 官方蓝方三级干扰 → gr-robomaster
+python3 tools/test/loopback.py --side blue --wave jam3
+
+# 信息波与干扰波的组合接收测试
+python3 tools/test/loopback.py --side red --wave info jam1
+
+# 现场录波 → gr-robomaster
+python3 tools/test/loopback.py --recording red
+python3 tools/test/loopback.py --recording blue-ganrao-3
+```
+
+生成数据时也可加 `--data /路径/messages.json`。接收滤波参数读取工程红蓝接收流图，物理解码直接调用项目的 `robomaster.gfsk_receiver` 或 `gfsk_receiver_noise`。录波时自动采用各文件的信道偏移和 SPS=52。
+
+软件环回不启动 IIO、Qt、ROS 或 ZeroMQ。输出每个选定通道的 CRC 有效帧数和最多三条数据示例；官方造波还逐帧核对解出的内容是否与 JSON 一致。`passed=true` 表示所有选定通道均满足检查；较强组合干扰可能使信息波通道失败，结果按实际接收能力报告。
+
+## 4. 无线接收：复用工程流图
+
+```bash
+# 官方参数信号，SPS 默认沿用工程的 47
+python3 tools/rx/project_rx.py --side red
+python3 tools/rx/project_rx.py --side blue
+
+# 现场录波回放信号
+python3 tools/rx/project_rx.py --side red --sps 52
+
+# 第三档干扰：将原第二档干扰支路改接第三档
+python3 tools/rx/project_rx.py --side blue --sps 52 --jam3
+```
+
+红蓝接收入口二选一；它们使用相同 ZeroMQ 端口。接收设备地址可用 `--uri ip:实际地址` 覆盖。
+
+该入口加载工程的 `GFSK_RX_RED.py` / `GFSK2_RX_BLUE.py`。射频接收、频移滤波、鉴频、`gr-robomaster` 和 ZeroMQ 发布均使用工程原有链路。SPS、URI 和第三档干扰通过内存适配，工程文件不改写。
+
+默认同时接收信息波、一级干扰、二级干扰；`--jam3` 将二级支路换成三级，发布端口仍为 6667。信息波、一级干扰分别保留 5555、6666。现有 ROS 后处理按工程方式独立启动。
+
+## 参数检查和自动检查
+
+四个入口都支持 `--describe`，只打印配置，不连接硬件；命令参数及固定值见 [PARAMETERS.md](PARAMETERS.md)。
+
+```bash
+python3 tools/tx/official_tx.py --side red --wave info jam1 --describe
+python3 tools/tx/replay_tx.py --recording red --describe
 python3 -B -m unittest discover -s tools/tests -v
 ```
 
-Windows 上的文件检查与单元测试不能代替 Linux GNU Radio 流图运行或 SDR 硬件验证；具体完成范围见实录指南和报告。
+自动检查中的真实 GNU Radio 环回需要已安装 `gr-robomaster`；未安装时该项显示跳过。真实射频收发和绝对功率需在设备上验收。
