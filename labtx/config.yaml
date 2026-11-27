@@ -1,0 +1,30 @@
+# Deployment defaults. Attenuations are bench dB settings, not absolute dBm.
+app:
+  log_root: "~/.local/state/rm-sdr/labtx"
+radio:
+  side: red
+  interference_level: 1
+  sample_rate: 1000000
+devices:
+  broadcast_tx_uri: ip:192.168.1.101
+  interference_tx_uri: ip:192.168.1.102
+  rx1_uri: ip:192.168.1.11
+  broadcast_tx_rf_port: A
+  interference_tx_rf_port: A
+tx:
+  lab_antenna_confirm: false
+  broadcast_attenuation_db: 60
+  interference_attenuation_db: 60
+  interference_password: R1L001
+  buffer_size: 1048576
+  prefill_packets: 0
+calibration:
+  broadcast:
+    measured_dbm: null
+    attenuation_db: null
+    profile: ""
+  interference:
+    measured_dbm: null
+    attenuation_db: null
+    profile: ""
+
